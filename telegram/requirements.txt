@@ -1,2 +1,1 @@
-telepot>=8.3
-urllib3>=1.9.1
+python-telegram-bot>=9.0.0

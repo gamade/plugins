@@ -6,7 +6,6 @@
 #  plugin see README.md
 #  Version 1.1.1
 #########################################################################
-#  Free for non-commercial use
 #
 #  Plugin for the API of odlinfo.bfs.de, which allows to read values of
 #  radioactive radiation within Germany.
@@ -17,6 +16,8 @@
 #  For your own username and password register to the E-Mail provided in
 #  https://odlinfo.bfs.de/DE/service/datenschnittstelle.html
 #
+#  This file is part of SmartHomeNG.
+#
 #  SmartHomeNG is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -24,11 +25,11 @@
 #
 #  SmartHomeNG is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with SmartHomeNG (NG). If not, see <http://www.gnu.org/licenses/>.
+#  along with SmartHomeNG. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
 
@@ -38,20 +39,18 @@ from lib.model.smartplugin import SmartPlugin
 from requests.auth import HTTPBasicAuth
 
 class ODLInfo(SmartPlugin):
-    ALLOW_MULTIINSTANCE = False
-    PLUGIN_VERSION = "1.1.1"
+    PLUGIN_VERSION = "1.4.1"
     _base_url = 'https://odlinfo.bfs.de/daten/json/stamm.json'
 
-    def __init__(self, smarthome, user, password):
+    def __init__(self, sh, *args, **kwargs):
         """
         Initializes the plugin
         @param user: For accessing the ODLINFO API you need a personal username
         @param password: For accessing the ODLINFO API you need a personal password
         """
         self.logger = logging.getLogger(__name__)
-        self._sh = smarthome
-        self._user = user
-        self._password = password
+        self._user = self.get_parameter_value('user')
+        self._password = self.get_parameter_value('password')
         self._keys = ['ort', 'kenn', 'plz', 'status', 'kid', 'hoehe', 'lon', 'lat', 'mw']
         self._session = requests.Session()
 

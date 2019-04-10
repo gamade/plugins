@@ -21,29 +21,32 @@
 
 import logging
 import subprocess # we scrape apcaccess output
+from lib.model.smartplugin import SmartPlugin
 
-logger = logging.getLogger('')
+logger = logging.getLogger(__name__)
 
-class APCUPS():
-
+ITEM_TAG = ['apcups']
+class APCUPS(SmartPlugin):
+    PLUGIN_VERSION = "1.3.1"
+    ALLOW_MULTIINSTANCE = True
+  
     def __init__(self, smarthome, host='127.0.0.1', port=3551, cycle=300):
         self._sh = smarthome
         self._host = host
         self._port = port
         self._cycle = int(cycle)
-        #self._cycle = 300
         self._items = {}
 
     def run(self):
         self.alive = True
-        self._sh.scheduler.add('Apcups', self.update_status, cycle=self._cycle)
+        self._sh.scheduler.add('APCups', self.update_status, cycle=self._cycle)
 
     def stop(self):
         self.alive = False
 
     def parse_item(self, item):
-        if 'apcups' in item.conf:
-            apcups_key = (item.conf['apcups']).lower()
+        if self.has_iattr(item.conf, ITEM_TAG[0]):
+            apcups_key = (self.get_iattr_value(item.conf, ITEM_TAG[0])).lower()
             self._items[apcups_key]=item
             logger.debug("item {0} added with apcupd_key {1}".format(item,apcups_key))
             return self.update_item
@@ -55,7 +58,10 @@ class APCUPS():
             logger.debug("update item: {0}".format(item.id()))
 
     def update_status(self):
-        # go and grab
+        """
+        Start **apcaccess** on a shell, capture the output and parse it.
+        The items attribut parameter will be matched against the shell output
+        """
         command = '/sbin/apcaccess status {0}:{1}'.format(self._host, self._port)   # the command goes here
         output = subprocess.check_output(command.split(), shell=False)
         # decode byte string to string
