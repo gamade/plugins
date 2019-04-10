@@ -1,0 +1,123 @@
+{% extends "base_plugin.html" %}
+
+{% set logo_frame = false %}
+
+{% block headtable %}	
+<table class="table table-striped table-hover">
+	<tbody>
+		<tr>
+			<td class="py-1"><strong>Auth Token</strong></td>
+			<td class="py-1">{{ p._get_api_token() }}</td>
+			<td class="py-1" width="50px"></td>
+			<td class="py-1"><strong>expires:</strong></td>
+			<td class="py-1">{{ p._get_api_token_expire_date() }}</td>
+			<td class="py-1" width="50px"></td>
+		</tr>
+		<tr>
+			<td class="py-1"><strong>User ID</strong></td>
+			<td class="py-1">{{ p.get_parameter_value_for_display('userid') }}</td>
+			<td></td>
+			<td class="py-1"><strong>Password</strong></td>
+			<td class="py-1">{{ p.get_parameter_value_for_display('password') }}</td>
+			<td></td>
+		</tr>
+	</tbody>
+</table>
+{% endblock headtable %}
+
+
+<!--
+	Additional buttons for the web interface (if any are needed) - displayed below the headtable-section
+-->
+{% block buttons %}
+{% if 1==2 %}
+	<form action="" method="post">
+	</form>
+{% endif %}
+{% endblock %}
+
+<!--
+	Define the number of tabs for the body of the web interface (1 - 3)
+-->
+{% set tabcount = 2 %}
+
+
+<!--
+	Set the tab that will be visible on start, if another tab that 1 is wanted (1 - 3)
+-->
+{% if item_count==0 %}
+	{% set start_tab = 2 %}
+{% endif %}
+
+
+<!--
+	Content block for the first tab of the Webinterface
+-->
+{% set tab1title = "<strong>" ~ p.get_shortname() ~ " Items</strong> (" ~ item_count ~ ")" %}
+{% block bodytab1 %}
+{% endblock bodytab1 %}
+
+
+<!--
+	Content block for the second tab of the Webinterface
+-->
+{% set tab2title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong> (" ~ device_count ~ ")" %}
+{% block bodytab2 %}
+
+<div class="container-fluid m-2">
+
+
+<table class="table">
+  <tbody>
+    <tr>
+      <td class="py-1">
+	<strong>{{ p._get_mower_name() }}</strong></br>
+        <small>{{ p._get_mower_model_name() }}</small></br>
+        <small>{{ p._get_mower_id() }}</small></br>
+
+	{% if p._get_mower_model()=="AM315X" %}
+	<img src="static/img/H310-1610 315x.png" alt="{{ _('Gerät verfügbar') }}" style="width: 250px;"/></br>
+	{% endif %}
+
+        {{ p._get_mower_status_activity() }}
+
+        <small>
+        {% if p._get_mower_battery_percent() >= 90 %}
+          <i class="fas fa-battery-full"></i> 
+        {% elif p._get_mower_battery_percent() >= 75 %}
+          <i class="fas fa-battery-three-quarters"></i> 
+        {% elif p._get_mower_battery_percent() >= 50 %}
+          <i class="fas fa-battery-half"></i> 
+        {% elif p._get_mower_battery_percent() >= 25 %}
+          <i class="fas fa-battery-quarter"></i> 
+        {% else %}
+          <i class="fas fa-battery-empty"></i> 
+        {% endif %}
+        {{ p._get_mower_battery_percent() }}%</small></br>
+
+	<form action="" method="post">
+        <button type="button" class="btn btn-shng btn-sm" onclick="jQuery.get('mower_stop');"><i class="fas fa-stop"></i> {{ _('Stop') }}</button>
+        <button type="button" class="btn btn-shng btn-sm" onclick="jQuery.get('mower_start');"><i class="fas fa-play"></i> {{ _('Start') }}</button>
+        <button type="button" class="btn btn-shng btn-sm" onclick="jQuery.get('mower_park');"><i class="fas fa-home"></i> {{ _('Park') }}</button>
+	</form>
+      </td><td>
+        <div id="map-1" style="height: 300px; width: 500px;"></div>
+	<script>
+	  function initMap() {
+            var mower1 = {lat: 49.058508333333336, lng: 10.972428333333333};
+            var map1 = new google.maps.Map(document.getElementById('map-1'), {zoom: 12, center: mower1});
+	    var marker1 = new google.maps.Marker({position: mower1, map: map1});
+	  }
+        </script>
+        <script async defer
+          src="https://maps.googleapis.com/maps/api/js?key={{ p.get_parameter_value_for_display('mapkey') }}&callback=initMap">
+        </script>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+{% endblock bodytab2 %}
+
