@@ -46,21 +46,29 @@ class Husky(SmartPlugin):
 
     PLUGIN_VERSION = '1.6.0'
 
+    ITEM_INFO = "husky_info"
+    ITEM_CONTROL = "husky_control"
+    ITEM_STATE  = "husky_state"
+
+    VALID_INFOS = ['name','id','model']
+    VALID_COMMANDS = ['start','stop','park']
+    VALID_STATES = ['color','activity','message','batterypercent']
+
     STATUS = {
-        "PARKED_PARKED_SELECTED"       :   {'id' :  1, 'activity' : 'PARKED',   'title' : 'GEPARKT - Bis auf Weiteres'},
-        "PARKED_TIMER"                 :   {'id' :  2, 'activity' : 'PARKED',   'title' : ''},
-        "PARKED_AUTOTIMER"             :   {'id' :  2, 'activity' : 'PARKED',   'title' : ''},
-        "COMPLETED_CUTTING_TODAY_AUTO" :   {'id' :  2, 'activity' : 'PARKED',   'title' : ''},
-        "OK_CUTTING"                   :   {'id' :  2, 'activity' : 'CUTTING',  'title' : 'MÄHEN - Mäheinsatz endet HH:MM'},
-        "OK_CUTTING_NOT_AUTO"          :   {'id' :  2, 'activity' : 'CUTTING',  'title' : 'MÄHEN - Timer aufheben'},
-        "OK_SEARCHING"                 :   {'id' :  2, 'activity' : 'MOVING',   'title' : 'MÄHEN - Auf dem Weg zur Ladestation'},
-        "OK_LEAVING"                   :   {'id' :  2, 'activity' : 'MOVING',   'title' : 'MÄHEN - Verlässt Ladestation'},
-        "OK_CHARGING"                  :   {'id' :  2, 'activity' : 'CHARGING', 'title' : 'LADEN - Nächste Startzeit DD:MM HH:MM'},
-        "PAUSED"                       :   {'id' :  2, 'activity' : 'PAUSED',   'title' : 'PAUSIERT'},
-        "OFF_HATCH_OPEN"               :   {'id' :  2, 'activity' : 'DISABLED', 'title' : ''},
-        "OFF_HATCH_CLOSED"             :   {'id' :  2, 'activity' : 'DISABLED', 'title' : ''},
-        "ERROR"                        :   {'id' :  2, 'activity' : 'ERROR',    'title' : ''},
-        "UNKNOWN"                      :   {'id' :  0, 'activity' : 'UNKNOWN',  'title' : 'n.a.' }
+        "PARKED_PARKED_SELECTED"       :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Bis auf Weiteres'},
+        "PARKED_TIMER"                 :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Nächste Startzeit {starttime_HM}'},
+        "PARKED_AUTOTIMER"             :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - PARKED_AUTOTIMER'},
+        "COMPLETED_CUTTING_TODAY_AUTO" :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Wettertimer'},
+        "OK_CUTTING"                   :   {'color' :  '38761D', 'activity' : 'CUTTING',  'msg' : 'MÄHEN - Mäheinsatz endet HH:MM'},
+        "OK_CUTTING_NOT_AUTO"          :   {'color' :  '38761D', 'activity' : 'CUTTING',  'msg' : 'MÄHEN - Timer aufheben'},
+        "OK_SEARCHING"                 :   {'color' :  '38761D', 'activity' : 'MOVING',   'msg' : 'MÄHEN - Auf dem Weg zur Ladestation'},
+        "OK_LEAVING"                   :   {'color' :  '38761D', 'activity' : 'MOVING',   'msg' : 'MÄHEN - Verlässt Ladestation'},
+        "OK_CHARGING"                  :   {'color' :  '1874CD', 'activity' : 'CHARGING', 'msg' : 'LADEN - Nächste Startzeit {starttime_HM}'},
+        "PAUSED"                       :   {'color' :  'FFA500', 'activity' : 'PAUSED',   'msg' : 'PAUSIERT'},
+        "OFF_HATCH_OPEN"               :   {'color' :  'FF0000', 'activity' : 'DISABLED', 'msg' : 'OFF_HATCH_OPEN'},
+        "OFF_HATCH_CLOSED"             :   {'color' :  'FF0000', 'activity' : 'DISABLED', 'msg' : 'OFF_HATCH_CLOSED'},
+        "ERROR"                        :   {'color' :  'FF0000', 'activity' : 'ERROR',    'msg' : 'ERROR'},
+        "UNKNOWN"                      :   {'color' :  'FF0000', 'activity' : 'UNKNOWN',  'msg' : 'n.a.' }
     }
 
     STARTSOURCE = {
@@ -77,63 +85,66 @@ class Husky(SmartPlugin):
     }
 
     MOWERERROR = {
-        0                              :   {'msg' : 'no error', 'color' : '0x00FF00'},
-        1                              :   {'msg' : 'outside mowing area', 'color' : '0xFFA500'},
-        2                              :   {'msg' : 'no loop signal', 'color' : '0xFF0000'},
-        4                              :   {'msg' : 'Problem loop sensor front', 'color' : '0xFF0000'},
-        5                              :   {'msg' : 'Problem loop sensor rear', 'color' : '0xFF0000'},
-        6                              :   {'msg' : 'Problem loop sensor', 'color' : '0xFF0000'},
-        7                              :   {'msg' : 'Problem loop sensor', 'color' : '0xFF0000'},
-        8                              :   {'msg' : 'wrong PIN-code', 'color' : '0x9932CC'},
-        9                              :   {'msg' : 'locked in', 'color' : '0x1874CD'},
-       10                              :   {'msg' : 'upside down', 'color' : '0x1874CD'},
-       11                              :   {'msg' : 'low battery', 'color' : '0x1874CD'},
-       12                              :   {'msg' : 'battery empty', 'color' : '0xFFA500'},
-       13                              :   {'msg' : 'no drive', 'color' : '0x1874CD'},
-       15                              :   {'msg' : 'Mower raised', 'color' : '0x1874CD'},
-       16                              :   {'msg' : 'trapped in charging station', 'color' : '0xFFA500'},
-       17                              :   {'msg' : 'charging station blocked', 'color' : '0xFFA500'},
-       18                              :   {'msg' : 'Problem shock sensor rear', 'color' : '0xFF0000'},
-       19                              :   {'msg' : 'Problem shock sensor front', 'color' : '0xFF0000'},
-       20                              :   {'msg' : 'Wheel motor blocked on the right', 'color' : '0xFF0000'},
-       21                              :   {'msg' : 'Wheel motor blocked on the left', 'color' : '0xFF0000'},
-       22                              :   {'msg' : 'Drive problem left', 'color' : '0xFF0000'},
-       23                              :   {'msg' : 'Drive problem right', 'color' : '0xFF0000'},
-       24                              :   {'msg' : 'Problem mower engine', 'color' : '0xFF0000'},
-       25                              :   {'msg' : 'Cutting system blocked', 'color' : '0xFFA500'},
-       26                              :   {'msg' : 'Faulty component connection', 'color' : '0xFF0000'},
-       27                              :   {'msg' : 'default settings', 'color' : '-1'},
-       28                              :   {'msg' : 'Memory defective', 'color' : '0xFF0000'},
-       30                              :   {'msg' : 'battery problem', 'color' : '0xFF0000'},
-       31                              :   {'msg' : 'STOP-button problem', 'color' : '0xFF0000'},
-       32                              :   {'msg' : 'tilt sensor problem', 'color' : '0xFF0000'},
-       33                              :   {'msg' : 'Mower tilted', 'color' : '0x1874CD'},
-       35                              :   {'msg' : 'Wheel motor overloaded right', 'color' : '0xFF0000'},
-       36                              :   {'msg' : 'Wheel motor overloaded left', 'color' : '0xFF0000'},
-       37                              :   {'msg' : 'Charging current too high', 'color' : '0xFF0000'},
-       38                              :   {'msg' : 'Temporary problem', 'color' : '-1'},
-       42                              :   {'msg' : 'limited cutting height range', 'color' : '0xFF0000'},
-       43                              :   {'msg' : 'unexpected cutting height adjustment', 'color' : '0xFF0000'},
-       44                              :   {'msg' : 'unexpected cutting height adjustment', 'color' : '0xFF0000'},
-       45                              :   {'msg' : 'Problem drive cutting height', 'color' : '0xFF0000'},
-       46                              :   {'msg' : 'limited cutting height range', 'color' : '0xFF0000'},
-       47                              :   {'msg' : 'Problem drive cutting height', 'color' : '0xFF0000'}
+        0                              :   {'msg' : 'no error', 'color' : '00FF00'},
+        1                              :   {'msg' : 'outside mowing area', 'color' : 'FFA500'},
+        2                              :   {'msg' : 'no loop signal', 'color' : 'FF0000'},
+        4                              :   {'msg' : 'Problem loop sensor front', 'color' : 'FF0000'},
+        5                              :   {'msg' : 'Problem loop sensor rear', 'color' : 'FF0000'},
+        6                              :   {'msg' : 'Problem loop sensor', 'color' : 'FF0000'},
+        7                              :   {'msg' : 'Problem loop sensor', 'color' : 'FF0000'},
+        8                              :   {'msg' : 'wrong PIN-code', 'color' : '9932CC'},
+        9                              :   {'msg' : 'locked in', 'color' : '1874CD'},
+       10                              :   {'msg' : 'upside down', 'color' : '1874CD'},
+       11                              :   {'msg' : 'low battery', 'color' : '1874CD'},
+       12                              :   {'msg' : 'battery empty', 'color' : 'FFA500'},
+       13                              :   {'msg' : 'no drive', 'color' : '1874CD'},
+       15                              :   {'msg' : 'Mower raised', 'color' : '1874CD'},
+       16                              :   {'msg' : 'trapped in charging station', 'color' : 'FFA500'},
+       17                              :   {'msg' : 'charging station blocked', 'color' : 'FFA500'},
+       18                              :   {'msg' : 'Problem shock sensor rear', 'color' : 'FF0000'},
+       19                              :   {'msg' : 'Problem shock sensor front', 'color' : 'FF0000'},
+       20                              :   {'msg' : 'Wheel motor blocked on the right', 'color' : 'FF0000'},
+       21                              :   {'msg' : 'Wheel motor blocked on the left', 'color' : 'FF0000'},
+       22                              :   {'msg' : 'Drive problem left', 'color' : 'FF0000'},
+       23                              :   {'msg' : 'Drive problem right', 'color' : 'FF0000'},
+       24                              :   {'msg' : 'Problem mower engine', 'color' : 'FF0000'},
+       25                              :   {'msg' : 'Cutting system blocked', 'color' : 'FFA500'},
+       26                              :   {'msg' : 'Faulty component connection', 'color' : 'FF0000'},
+       27                              :   {'msg' : 'default settings', 'color' : 'FF0000'},
+       28                              :   {'msg' : 'Memory defective', 'color' : 'FF0000'},
+       30                              :   {'msg' : 'battery problem', 'color' : 'FF0000'},
+       31                              :   {'msg' : 'STOP-button problem', 'color' : 'FF0000'},
+       32                              :   {'msg' : 'tilt sensor problem', 'color' : 'FF0000'},
+       33                              :   {'msg' : 'Mower tilted', 'color' : '1874CD'},
+       35                              :   {'msg' : 'Wheel motor overloaded right', 'color' : 'FF0000'},
+       36                              :   {'msg' : 'Wheel motor overloaded left', 'color' : 'FF0000'},
+       37                              :   {'msg' : 'Charging current too high', 'color' : 'FF0000'},
+       38                              :   {'msg' : 'Temporary problem', 'color' : 'FF0000'},
+       42                              :   {'msg' : 'limited cutting height range', 'color' : 'FF0000'},
+       43                              :   {'msg' : 'unexpected cutting height adjustment', 'color' : 'FF0000'},
+       44                              :   {'msg' : 'unexpected cutting height adjustment', 'color' : 'FF0000'},
+       45                              :   {'msg' : 'Problem drive cutting height', 'color' : 'FF0000'},
+       46                              :   {'msg' : 'limited cutting height range', 'color' : 'FF0000'},
+       47                              :   {'msg' : 'Problem drive cutting height', 'color' : 'FF0000'}
     }
 
+    # performance: flächenleistung in qm/h
+    # chargetime: durchschnittliche Ladezeit in Minuten
+    # mowtime: durchschnittliche Mähzeit in Minuten
     MOWERMODEL = {
-        "TBD-1"                        :   {'product' : 'AM105',     'name' : 'AUTOMOWER® 105',      'performance' : 43},
-        "TBD-2"                        :   {'product' : 'AM420',     'name' : 'AUTOMOWER® 420',      'performance' : 92},
-        "TBD-3"                        :   {'product' : 'AM440',     'name' : 'AUTOMOWER® 440',      'performance' : 167},
-        "TBD-4"                        :   {'product' : 'AM310',     'name' : 'AUTOMOWER® 310',      'performance' : 56},
-        "TBD-5"                        :   {'product' : 'AM315',     'name' : 'AUTOMOWER® 315',      'performance' : 68},
-        "L"                            :   {'product' : 'AM315X',    'name' : 'AUTOMOWER® 315X',     'performance' : 73},
-        "TBD-6"                        :   {'product' : 'AM430X',    'name' : 'AUTOMOWER® 430X',     'performance' : 133},
-        "TBD-7"                        :   {'product' : 'AM435XAWD', 'name' : 'AUTOMOWER® 435X AWD', 'performance' : 146},
-        "TBD-8"                        :   {'product' : 'AM450X',    'name' : 'AUTOMOWER® 450X',     'performance' : 208},
-        "TBD-9"                        :   {'product' : 'AM520',     'name' : 'AUTOMOWER® 520',      'performance' : 92},
-        "TBD-A"                        :   {'product' : 'AM535AWD',  'name' : 'AUTOMOWER® 535 AWD',  'performance' : 146},
-        "TBD-B"                        :   {'product' : 'AM550',     'name' : 'AUTOMOWER® 550',      'performance' : 208},
-        "UNKNOWN"                      :   {'product' : 'UKN',       'name' : 'no name yet',         'performance' : 0}
+        "TBD-1"    :   {'product' : 'AM105',     'name' : 'AUTOMOWER® 105',      'performance' : 43,  'chargetime' : 50, 'mowtime' : 70},
+        "E"        :   {'product' : 'AM420',     'name' : 'AUTOMOWER® 420',      'performance' : 92,  'chargetime' : 55, 'mowtime' : 105},
+        "TBD-3"    :   {'product' : 'AM440',     'name' : 'AUTOMOWER® 440',      'performance' : 167, 'chargetime' : 75, 'mowtime' : 240},
+        "TBD-4"    :   {'product' : 'AM310',     'name' : 'AUTOMOWER® 310',      'performance' : 56,  'chargetime' : 50, 'mowtime' : 60},
+        "TBD-5"    :   {'product' : 'AM315',     'name' : 'AUTOMOWER® 315',      'performance' : 68,  'chargetime' : 50, 'mowtime' : 60},
+        "L"        :   {'product' : 'AM315X',    'name' : 'AUTOMOWER® 315X',     'performance' : 73,  'chargetime' : 50, 'mowtime' : 60},
+        "G"        :   {'product' : 'AM430X',    'name' : 'AUTOMOWER® 430X',     'performance' : 133, 'chargetime' : 65, 'mowtime' : 135},
+        "TBD-7"    :   {'product' : 'AM435XAWD', 'name' : 'AUTOMOWER® 435X AWD', 'performance' : 146, 'chargetime' : -1, 'mowtime' : -1},
+        "TBD-8"    :   {'product' : 'AM450X',    'name' : 'AUTOMOWER® 450X',     'performance' : 208, 'chargetime' : 75, 'mowtime' : 260},
+        "TBD-9"    :   {'product' : 'AM520',     'name' : 'AUTOMOWER® 520',      'performance' : 92,  'chargetime' : -1, 'mowtime' : -1},
+        "TBD-A"    :   {'product' : 'AM535AWD',  'name' : 'AUTOMOWER® 535 AWD',  'performance' : 146, 'chargetime' : -1, 'mowtime' : -1},
+        "TBD-B"    :   {'product' : 'AM550',     'name' : 'AUTOMOWER® 550',      'performance' : 208, 'chargetime' : -1, 'mowtime' : -1},
+        "UNKNOWN"  :   {'product' : 'UKN',       'name' : 'no name yet',         'performance' : 0,   'chargetime' : -1, 'mowtime' : -1}
     }
 
 
@@ -180,6 +191,9 @@ class Husky(SmartPlugin):
 
         self.mower = None
         self.mower_status_que = deque(maxlen=10) 
+
+        self._items_control = []
+        self._items_state  = []
 
         # cycle time in seconds, only needed, if hardware/interface needs to be
         # polled for value changes by adding a scheduler entry in the run method of this plugin
@@ -278,12 +292,28 @@ class Husky(SmartPlugin):
                         with the item, caller, source and dest as arguments and in case of the knx plugin the value
                         can be sent to the knx with a knx write function within the knx plugin.
         """
-        if self.has_iattr(item.conf, 'foo_itemtag'):
-            self.logger.debug("parse item: {}".format(item))
+        if self.has_iattr(item.conf, self.ITEM_CONTROL):
+            self.logger.debug("parse CONTROL item: {}".format(item))
 
-        # todo
-        # if interesting item for sending values:
-        #   return self.update_item
+            value = self.get_iattr_value(item.conf, self.ITEM_CONTROL).lower()
+            if value in self.VALID_COMMANDS:
+                self.logger.debug("adding valid command item {0} to wachlist {1}={2} ".format(item, self.ITEM_CONTROL, item.conf[self.ITEM_CONTROL]))
+                self._items_control.append(item)
+                return self.update_item
+            else:
+                self.logger.error("command '{0}' invalid, use one of {1}".format(value, self.VALID_COMMANDS))
+
+        if self.has_iattr(item.conf, self.ITEM_STATE):
+            self.logger.debug("parse STATE item: {}".format(item))
+
+            value = self.get_iattr_value(item.conf, self.ITEM_STATE).lower()
+            if value in self.VALID_STATES:
+                self.logger.debug("adding valid state item {0} to wachlist {1}={2} ".format(item, self.ITEM_STATE, item.conf[self.ITEM_STATE]))
+                self._items_state.append(item)
+                return self.update_item
+            else:
+                self.logger.error("value '{0}' invalid, use one of {1}".format(value, self.VALID_STATES))
+
 
     def parse_logic(self, logic):
         """
@@ -310,13 +340,16 @@ class Husky(SmartPlugin):
             # code to execute, only if the item has not been changed by this this plugin:
             self.logger.info("Update item: {}, item has been changed outside this plugin".format(item.id()))
 
-            if self.has_iattr(item.conf, 'foo_itemtag'):
-                self.logger.debug(
-                    "update_item was called with item '{}' from caller '{}', source '{}' and dest '{}'".format(item,
-                                                                                                               caller,
-                                                                                                               source,
-                                                                                                               dest))
-            pass
+            if self.has_iattr(item.conf, self.ITEM_CONTROL):
+                self.logger.debug("update_item was called with item '{}' from caller '{}', source '{}' and dest '{}'".format(item, caller, source, dest))
+                cmd = self.get_iattr_value(item.conf, self.ITEM_CONTROL).lower()
+                ret = {
+                    'park'        : self._control_mower_park,
+                    'stop'        : self._control_mower_stop,
+                    'start'       : self._control_mower_start,
+                    'default'     : self.logger.error("called undefined control function") 
+		}.get(cmd)()
+                
 
     def poll_device(self):
         """
@@ -349,9 +382,6 @@ class Husky(SmartPlugin):
         self.logger.info("storedTimestamp ......: {0} ({1})".format(self.cur_mower_status['storedTimestamp'], datetime.fromtimestamp(self.cur_mower_status['storedTimestamp']/1000).strftime('%Y-%m-%d %H:%M:%S')))
         self.logger.info("valueFound ...........: {0}".format(self.cur_mower_status['valueFound']))
 
-        self.logger.info("-- TRANSLATED DATA")
-        self.logger.info("readable Status ......: {0}".format(self.STATUS.get(self.cur_mower_status['mowerStatus'], self.STATUS['UNKNOWN']).get('title')))
-
 
         if len(self.mower_status_que):
             last_mower_status = self.mower_status_que[-1]
@@ -360,28 +390,40 @@ class Husky(SmartPlugin):
                 self.mower_status_que.append(self.cur_mower_status)
             else:
                 self.logger.debug("status exists already in status que: no update needed")
+                # TODO: only if no enforced updates confugured 
+                return
         else:
             self.logger.debug("mower status que is empty: insert current status to que")
             self.mower_status_que.append(self.cur_mower_status)
 
-        self.mower_status_que.append(self.cur_mower_status)
-        self.logger.info("len(mower_status_que): {0}".format(len(self.mower_status_que)))
+        # self.logger.debug("len(mower_status_que): {0}".format(len(self.mower_status_que)))
 
-        # # get the value from the device
-        # device_value = ...
-        #
-        # # find the item(s) to update:
-        # for item in self.sh.find_items('...'):
-        #
-        #     # update the item by calling item(value, caller, source=None, dest=None)
-        #     # - value and caller must be specified, source and dest are optional
-        #     #
-        #     # The simple case:
-        #     item(device_value, self.get_shortname())
-        #     # if the plugin is a gateway plugin which may receive updates from several external sources,
-        #     # the source should be included when updating the the value:
-        #     item(device_value, self.get_shortname(), source=device_source_id)
-        pass
+        #TODO: calc MOWING time, 
+        # - e.g. estimate blade change
+        # - approx. mowing area
+        # - mowing cycles per day, month, ... 
+       
+        #TODO: calc MOVING time
+
+        self.logger.debug("found {0} state items to update".format(len(self._items_state)))
+        for item in self._items_state:
+            key = item.conf[self.ITEM_STATE]
+            self.logger.debug("update item {0} of type {1} and key {2}".format(item.id(), item.type(), key))
+            value = {
+                'activity'        : self._get_mower_status_activity,
+                'color'           : self._get_mower_status_color,
+                'message'         : self._get_mower_status_message,
+                'batterypercent'  : self._get_mower_status_battery_percent,
+                'default'         : None
+            }.get(key)()
+
+            self.logger.debug("update item: set {0} to {1}".format(key, value))
+
+            # if the plugin is a gateway plugin which may receive updates from several external sources,
+            # the source should be included when updating the the value:
+            #     item(device_value, self.get_shortname(), source=device_source_id)
+            item(value, self.get_shortname())
+
 
     def _get_api_connection(self):
         return self.mowapi.connection()
@@ -404,11 +446,51 @@ class Husky(SmartPlugin):
     def _get_mower_name(self):
         return self.mower['name']
 
-    def _get_mower_battery_percent(self):
+    def _get_mower_status_battery_percent(self):
         return self.cur_mower_status['batteryPercent']
+
+    def _get_mower_last_latitude(self):
+        return self.cur_mower_status['lastLocations'][0]['latitude']
+
+    def _get_mower_last_longitude(self):
+        return self.cur_mower_status['lastLocations'][0]['longitude']
+
+    def _get_mower_last_coordinates(self):
+        coordinates = [] 
+        for location in self.cur_mower_status['lastLocations']:
+            coordinates.append("[{0},{1}]".format(location['longitude'],location['latitude']))
+        return "[" + ",".join(coordinates) + "]"
+
+    def _get_mower_status_timestamp(self):
+        return self.cur_mower_status['storedTimestamp']
+
+    def _get_mower_status_time(self):
+        return datetime.fromtimestamp(self.cur_mower_status['storedTimestamp']).strftime('%Y-%m-%d %H:%M:%S')
 
     def _get_mower_status_activity(self):
         return self.STATUS.get(self.cur_mower_status['mowerStatus'], self.STATUS['UNKNOWN']).get('activity')
+
+    def _get_mower_status_message(self):
+        message_template = self.STATUS.get(self.cur_mower_status['mowerStatus'], self.STATUS['UNKNOWN']).get('msg')
+        starttime_YMDHMS = datetime.utcfromtimestamp(self.cur_mower_status['nextStartTimestamp']).strftime('%Y-%m-%d %H:%M:%S')
+        starttime_HMS = datetime.utcfromtimestamp(self.cur_mower_status['nextStartTimestamp']).strftime('%H:%M:%S')
+        starttime_HM = datetime.utcfromtimestamp(self.cur_mower_status['nextStartTimestamp']).strftime('%H:%M')
+        return message_template.format(starttime_YMDHMS=starttime_YMDHMS, starttime_HMS=starttime_HMS, starttime_HM=starttime_HM)
+
+    def _get_mower_status_color(self):
+        return self.STATUS.get(self.cur_mower_status['mowerStatus'], self.STATUS['UNKNOWN']).get('color')
+
+    def _get_mower_last_error_message(self):
+        return self.MOWERERROR.get(self.cur_mower_status['lastErrorCode'], self.MOWERERROR[0]).get('msg')
+
+    def _get_mower_last_error_timestamp(self):
+        return self.cur_mower_status['lastErrorCodeTimestamp']
+
+    def _get_mower_last_error_time(self):
+        return datetime.fromtimestamp(self.cur_mower_status['lastErrorCodeTimestamp']).strftime('%Y-%m-%d %H:%M:%S')
+
+    def _is_mower_connected(self):
+        return bool(self.cur_mower_status['connected'])
 
     def _control_mower_park(self):
         self.logger.debug("_control_park() triggered")
@@ -465,6 +547,54 @@ class Husky(SmartPlugin):
                                      description='')
 
         return True
+
+
+    def disp_age(self, age):
+        days = 0
+        hours = 0
+        minutes = 0
+        seconds = age
+        if seconds >= 60:
+            minutes = int(seconds / 60)
+            seconds = seconds - 60 * minutes
+            if minutes > 59:
+                hours = int(minutes / 60)
+                minutes = minutes - 60 * hours
+                if hours > 23:
+                    days = int(hours / 24)
+                    hours = hours - 24 * days
+        return self.age_to_string(days, hours, minutes, seconds)
+
+
+    def age_to_string(self, days, hours, minutes, seconds):
+        s = ''
+        if days > 0:
+            s += str(int(days)) + ' '
+            if days == 1:
+                s += translate('Tag')
+            else:
+                s += translate('Tage')
+            s += ', '
+        if (hours > 0) or (s != ''):
+            s += str(int(hours)) + ' '
+            if hours == 1:
+                s += translate('Stunde')
+            else:
+                s += translate('Stunden')
+            s += ', '
+        if (minutes > 0) or (s != ''):
+            s += str(int(minutes)) + ' '
+            if minutes == 1:
+                s += translate('Minute')
+            else:
+                s += translate('Minuten')
+            s += ', '
+        if days > 0:
+            s += str(int(seconds))
+        else:
+            s += str("%.2f" % seconds)
+        s += ' ' + translate('Sekunden')
+        return s
 
 
 # ------------------------------------------
@@ -524,7 +654,10 @@ class WebInterface(SmartPluginWebIf):
 
 class API:
     _API_IM = 'https://iam-api.dss.husqvarnagroup.net/api/v3/'
+    # original
     _API_TRACK = 'https://amc-api.dss.husqvarnagroup.net/v1/'
+    # new url with 'app' to use with extended commands
+    # _API_TRACK = 'https://amc-api.dss.husqvarnagroup.net/app/v1/'
     _HEADERS = {'Accept': 'application/json', 'Content-type': 'application/json'}
 
     def __init__(self):
@@ -616,7 +749,6 @@ class API:
             raise CommandException("Unknown command")
 
         #TODO:
-        # https://forum.fhem.de/index.php?topic=83416.90
         # Park until further notice: 
         # /mower-id/control/park
         #
@@ -625,7 +757,6 @@ class API:
         #
         # Park with duration 
         # /mower-id/control/park/duration/period
-        # json param: duration
         # 
         # Start main area
         # /mower-id/control/start
@@ -634,12 +765,53 @@ class API:
         # /mower-id/control/start/override/timer
         # json param: duration
 
+        # PARK
+        # mit nächstem Timer starten 
+        # .../control/park/duration/timer
+        # .../control/park/duration/period ("period" in Minuten im HEADER)
 
-        response = self.session.post(self._API_TRACK + 'mowers/%s/control' % self.device_id,
-                                    headers=self._HEADERS,
-                                    json={
-                                        "action": command
-                                    })
+        # START 
+        # .../control/start/override/period ("period" in Minuten im HEADER)
+
+	# "period": 360
+	# "period": 720
+
+        # RESPONSE
+        # "commandId": "...",
+        # "errorCode": null,
+        # "status": "OK"
+
+        # TODO: new commands
+        CMD = {
+            'PARK'        : { 'url' : 'mowers/{device_id}/control',                  'json' : { 'action': 'PARK'} },
+            'PARK_TIMER'  : { 'url' : 'mowers/{device_id}/control/park/duration/timer',   'json' : { 'action': 'PARK'} },
+            'PARK_3H'     : { 'url' : 'mowers/{device_id}/control/park/duration/period',  'json' : { 'period': 180} },
+            'PARK_6H'     : { 'url' : 'mowers/{device_id}/control/park/duration/period',  'json' : { 'period': 360} },
+            'PARK_12H'    : { 'url' : 'mowers/{device_id}/control/park/duration/period',  'json' : { 'period': 720} },
+            'START'       : { 'url' : 'mowers/{device_id}/control',                 'json' : { 'action': 'START'} },
+            'START_3H'    : { 'url' : 'mowers/{device_id}/control/start/override/period', 'json' : { 'period': 180} },
+            'START_6H'    : { 'url' : 'mowers/{device_id}/control/start/override/period', 'json' : { 'period': 360} },
+            'START_12H'   : { 'url' : 'mowers/{device_id}/control/start/override/period', 'json' : { 'period': 720} },
+            'STOP'        : { 'url' : 'mowers/{device_id}/control',                  'json' : { 'action': 'STOP'} }
+        }
+
+        #response = self.session.post(self._API_TRACK + 'mowers/%s/control' % self.device_id,
+        #                            headers=self._HEADERS,
+        #                            json={
+        #                                "action": command
+        #                            })
+        response = self.session.post(self._API_TRACK + CMD[command]['url'].format(device_id=self.device_id),
+                                     headers=self._HEADERS,
+                                     json=CMD[command]['json'])
         response.raise_for_status()
+        
+        if (response.json()['status']=='OK'):
+            return True
+        else:
+            self.logger.error("ERROR on posting action command '{0}': errorCode={1}".format(command, response.json()['errorCode']))
+            # self.logger.debug(json.dumps(response.json(), indent=4, sort_keys=True))
+            return False
+
+
 
 

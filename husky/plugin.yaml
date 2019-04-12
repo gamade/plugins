@@ -40,6 +40,13 @@ parameters:
             de: '(optional) ID oder Name des Mähroboters'
             en: '(optional) id or name of the automower'
 
+    mapkey:
+        type: str
+        default: ''
+        description:
+            de: '(optional) google maps api key'
+            en: '(optional) google maps api key'
+
 
 item_attributes: NONE
     # Definition of item attributes defined by this plugin (enter 'item_attributes: NONE', if section should be empty)

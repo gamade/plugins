@@ -1,41 +1,26 @@
-# Sample Plugin <- put the name of your plugin here
+# Husky Plugin
 
-#### Version 1.x.y
+#### Version 1.0.0
 
-Describe the purpose of the plugin right here. (What is the plugin good for?)
+Interface to Husqvarna Automower(R)
 
 ## Change history
 
-If you want, you can add a change history here:
-
-### Changes Since version 1.x.x
-
-- Fixed this
-
-### Changes Since version 1.x.w
-
-- Added that feature
-
+Inital version
 
 ## Requirements
 
-List the requirements of your plugin. Does it need special software or hardware?
+A valid Husqvarna account you can login with userid and password.
+To get this account, use the Husqvarna AMC App on your smartphone.
+You should have this working in order to use this plugin.
 
 ### Needed software
 
-* list
-* the
-* needed
-* software
-
-Including Python modules and SmartHomeNG modules
+no special Python modules needed until now. 
 
 ### Supported Hardware
 
-* list
-* the
-* supported
-* hardware
+In gerneral, all Automower models should be supported.
 
 ## Configuration
 
@@ -49,10 +34,6 @@ Please refer to the documentation generated from plugin.yaml metadata.
 Please refer to the documentation generated from plugin.yaml metadata.
 
 
-### logic.yaml
-Please refer to the documentation generated from plugin.yaml metadata.
-
-
 ## Methods
 Please refer to the documentation generated from plugin.yaml metadata.
 
@@ -60,4 +41,12 @@ Please refer to the documentation generated from plugin.yaml metadata.
 ## Examples
 
 If you have extensive examples, you could describe them here.
+
+# Credits to
+
+* SmartHome NG Team
+* Christophe Carré ([@crisz](https://github.com/chrisz) and his [pyhusmow](https://github.com/chrisz/pyhusmow) project)
+* David Karlsson ([@dinmammas](https://github.com/dinmammas) and his [homebridge-robonect](https://github.com/dinmammas/homebridge-robonect) project)
+* Jake Forrester ([@rannmann](https://github.com/rannmann) and his [node-husqvarna-automower](https://github.com/rannmann/node-husqvarna-automower) project)
+* NextDom Team ([@NextDom](https://github.com/NextDom) and his [plugin-husqvarna](https://github.com/NextDom/plugin-husqvarna) project)
 

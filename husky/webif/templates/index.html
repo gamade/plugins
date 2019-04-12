@@ -76,24 +76,59 @@
         <small>{{ p._get_mower_id() }}</small></br>
 
 	{% if p._get_mower_model()=="AM315X" %}
-	<img src="static/img/H310-1610 315x.png" alt="{{ _('Gerät verfügbar') }}" style="width: 250px;"/></br>
+	<img src="static/img/H310-1610 315x.png" alt="{{ _('Gerät verfügbar') }}" style="width: 200px;"/></br>
 	{% endif %}
 
-        {{ p._get_mower_status_activity() }}
+        <span style="color: #{{ p._get_mower_status_color() }};">
+		{{ p._get_mower_status_activity() }}
 
-        <small>
-        {% if p._get_mower_battery_percent() >= 90 %}
+		{% if p._get_mower_status_activity()=="CUTTING" %}
+			<i class="fas fa-cog fa-spin"></i>
+		{% elif p._get_mower_status_activity()=="MOVING" %}
+			<i class="fas fa-forward"></i>
+		{% elif p._get_mower_status_activity()=="PARKED" %}
+			<i class="fas fa-warehouse"></i>
+		{% elif p._get_mower_status_activity()=="CHARGING" %}
+			<i class="fas fa-warehouse"></i>
+		{% elif p._get_mower_status_activity()=="DISABLED" %}
+			<i class="fas fa-cogs"></i>
+		{% elif p._get_mower_status_activity()=="ERROR" %}
+			<i class="fas fa-exclamation-triangle"></i>
+		{% endif %}
+        </span>
+
+        <small style="float: right;">
+
+        {% if p._is_mower_connected()==True %}
+          <i class="fas fa-wifi"></i> 
+          <i class="fas fa-link"></i> 
+        {% else %}
+          <i style="color: #aaaaaa;" class="fas fa-wifi"></i> 
+          <i class="fas fa-unlink"></i> 
+	{% endif %}
+
+        {% if p._get_mower_status_battery_percent() >= 90 %}
           <i class="fas fa-battery-full"></i> 
-        {% elif p._get_mower_battery_percent() >= 75 %}
+        {% elif p._get_mower_status_battery_percent() >= 75 %}
           <i class="fas fa-battery-three-quarters"></i> 
-        {% elif p._get_mower_battery_percent() >= 50 %}
-          <i class="fas fa-battery-half"></i> 
-        {% elif p._get_mower_battery_percent() >= 25 %}
+        {% elif p._get_mower_status_battery_percent() >= 50 %}
+          <i class="fas fa-attery-half"></i> 
+        {% elif p._get_mower_status_battery_percent() >= 25 %}
           <i class="fas fa-battery-quarter"></i> 
         {% else %}
           <i class="fas fa-battery-empty"></i> 
         {% endif %}
-        {{ p._get_mower_battery_percent() }}%</small></br>
+        {{ p._get_mower_status_battery_percent() }}%</small></br>
+
+        {% if p._get_mower_status_activity()=="ERROR" %}
+	    {{ p._get_mower_last_error_message() }}</br>
+	    {{ p._get_mower_last_error_time() }}
+        {% else %}
+	    {{ p._get_mower_status_message() }}
+	{% endif %}
+        </br>
+
+
 
 	<form action="" method="post">
         <button type="button" class="btn btn-shng btn-sm" onclick="jQuery.get('mower_stop');"><i class="fas fa-stop"></i> {{ _('Stop') }}</button>
@@ -102,9 +137,11 @@
 	</form>
       </td><td>
         <div id="map-1" style="height: 300px; width: 500px;"></div>
+
+<!--
 	<script>
 	  function initMap() {
-            var mower1 = {lat: 49.058508333333336, lng: 10.972428333333333};
+            var mower1 = {lat: {{ p._get_mower_last_latitude() }}, lng: {{ p._get_mower_last_longitude() }};
             var map1 = new google.maps.Map(document.getElementById('map-1'), {zoom: 12, center: mower1});
 	    var marker1 = new google.maps.Marker({position: mower1, map: map1});
 	  }
@@ -112,6 +149,72 @@
         <script async defer
           src="https://maps.googleapis.com/maps/api/js?key={{ p.get_parameter_value_for_display('mapkey') }}&callback=initMap">
         </script>
+-->
+
+        <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css">
+	<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+	<script type="text/javascript">
+		var mower_lon = {{ p._get_mower_last_longitude() }}
+                var mower_lat = {{ p._get_mower_last_latitude() }}
+
+		var map1 = new ol.Map({
+			target: 'map-1',
+			layers: [
+			  new ol.layer.Tile({
+			    source: new ol.source.OSM()
+			  })
+			],
+			view: new ol.View({
+			  center: ol.proj.fromLonLat([mower_lon, mower_lat]),
+			  zoom: 19 
+			})
+		      });
+
+		var mowerStyle = new ol.style.Circle({
+				radius: 30,
+				fill: new ol.style.Fill({
+			    		color: '#ff9900',
+					opacity: 0.9
+					}),
+				stroke: new ol.style.Stroke({
+					color: '#ff0000',
+					opacity: 0.4
+					})
+				});
+
+                var mower1 = new ol.Feature({
+			geometry: new ol.geom.Point(ol.proj.transform([mower_lon, mower_lat], 'EPSG:4326', 'EPSG:3857')),
+                        style: mowerStyle
+			});
+
+                var mowers = [];
+                mowers.push(mower1); 
+		var mowerSource = new ol.source.Vector({
+			features: mowers
+			});
+		var mowerLayer = new ol.layer.Vector({
+			source: mowerSource
+			});
+
+                map1.addLayer(mowerLayer);
+
+
+		/** var mower_coordinates = [[lon, lat], [lon, lat], ... ]*/
+                var mower_coordinates = {{ p._get_mower_last_coordinates() }};
+
+		var mowerLines = new ol.layer.Vector({
+			source: new ol.source.Vector({
+				features: [new ol.Feature({
+						geometry: new ol.geom.LineString(mower_coordinates).transform('EPSG:4326','EPSG:3857'),
+						name: 'Track'
+						})]
+				}),
+			});
+
+		map1.addLayer(mowerLines);
+
+        </script>
+
       </td>
     </tr>
   </tbody>
