@@ -57,7 +57,7 @@ class Husky(SmartPlugin):
     STATUS = {
         "PARKED_PARKED_SELECTED"       :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Bis auf Weiteres'},
         "PARKED_TIMER"                 :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Nächste Startzeit {starttime_HM}'},
-        "PARKED_AUTOTIMER"             :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - PARKED_AUTOTIMER'},
+        "PARKED_AUTOTIMER"             :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Wettertimer, nächste Startzeit {starttime_HM}'},
         "COMPLETED_CUTTING_TODAY_AUTO" :   {'color' :  '1874CD', 'activity' : 'PARKED',   'msg' : 'GEPARKT - Wettertimer'},
         "OK_CUTTING"                   :   {'color' :  '38761D', 'activity' : 'CUTTING',  'msg' : 'MÄHEN - Mäheinsatz endet HH:MM'},
         "OK_CUTTING_NOT_AUTO"          :   {'color' :  '38761D', 'activity' : 'CUTTING',  'msg' : 'MÄHEN - Timer aufheben'},
@@ -264,7 +264,7 @@ class Husky(SmartPlugin):
         """
         self.logger.debug("Run method called")
         # setup scheduler for device poll loop   (disable the following line, if you don't need to poll the device. Rember to comment the self_cycle statement in __init__ as well
-        self.scheduler_add('poll_device', self.poll_device, cycle=self._cycle)
+        self.scheduler_add('husky_poll_service', self.poll_device, cycle=self._cycle)
 
 
 
@@ -277,6 +277,10 @@ class Husky(SmartPlugin):
         Stop method for the plugin
         """
         self.logger.debug("Stop method called")
+
+        #TODO: cleanup connection, e.g. remove running threads
+        self.scheduler_remove('husky_poll_service')
+
         self.alive = False
 
     def parse_item(self, item):
@@ -400,7 +404,8 @@ class Husky(SmartPlugin):
 
         #TODO: calc MOWING time, 
         # - e.g. estimate blade change
-        # - approx. mowing area
+        # - last mowing time
+        # - total,last mowing area
         # - mowing cycles per day, month, ... 
        
         #TODO: calc MOVING time
@@ -632,7 +637,7 @@ class WebInterface(SmartPluginWebIf):
         """
         tmpl = self.tplenv.get_template('index.html')
         # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
-        return tmpl.render(p=self.plugin, device_count=len(self.plugin.mowers))
+        return tmpl.render(p=self.plugin, device_count=len(self.plugin.mowers), items_control=self.plugin._items_control)
 
     @cherrypy.expose
     def mower_park(self):

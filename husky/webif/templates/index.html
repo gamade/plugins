@@ -1,6 +1,7 @@
 {% extends "base_plugin.html" %}
 
 {% set logo_frame = false %}
+{% set items_count = items_control|length %}
 
 {% block headtable %}	
 <table class="table table-striped table-hover">
@@ -46,24 +47,15 @@
 	Set the tab that will be visible on start, if another tab that 1 is wanted (1 - 3)
 -->
 {% if item_count==0 %}
-	{% set start_tab = 2 %}
+	{% set start_tab = 1 %}
 {% endif %}
 
 
 <!--
 	Content block for the first tab of the Webinterface
 -->
-{% set tab1title = "<strong>" ~ p.get_shortname() ~ " Items</strong> (" ~ item_count ~ ")" %}
+{% set tab1title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong> (" ~ device_count ~ ")" %}
 {% block bodytab1 %}
-{% endblock bodytab1 %}
-
-
-<!--
-	Content block for the second tab of the Webinterface
--->
-{% set tab2title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong> (" ~ device_count ~ ")" %}
-{% block bodytab2 %}
-
 <div class="container-fluid m-2">
 
 
@@ -210,8 +202,11 @@
 						})]
 				}),
 			});
-
 		map1.addLayer(mowerLines);
+
+		setTimeout(function() {
+		    map1.updateSize();
+		}, 100);
 
         </script>
 
@@ -222,5 +217,18 @@
 
 </div>
 
+{% endblock bodytab1 %}
+
+
+<!--
+	Content block for the second tab of the Webinterface
+-->
+{% set tab2title = "<strong>" ~ p.get_shortname() ~ " Items</strong> (" ~ item_count ~ ")" %}
+{% block bodytab2 %}
+<div class="container-fluid m-2">
+    {% for item in items_control %}
+        <div>{{ item }}</div>
+    {% endfor %}
+</div>
 {% endblock bodytab2 %}
 

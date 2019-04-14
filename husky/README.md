@@ -12,7 +12,7 @@ Inital version
 
 A valid Husqvarna account you can login with userid and password.
 To get this account, use the Husqvarna AMC App on your smartphone.
-You should have this working in order to use this plugin.
+You should have this app working in order to use this plugin.
 
 ### Needed software
 
@@ -28,6 +28,13 @@ In gerneral, all Automower models should be supported.
 
 Please refer to the documentation generated from plugin.yaml metadata.
 
+````yaml
+am315x:
+    class_name: Husky
+    class_path: plugins.husky
+    userid: email@domain.de 
+    password: mysecret 
+```
 
 ### items.yaml
 
@@ -40,7 +47,7 @@ Please refer to the documentation generated from plugin.yaml metadata.
 
 ## Examples
 
-If you have extensive examples, you could describe them here.
+
 
 # Credits to
 
