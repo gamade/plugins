@@ -28,7 +28,7 @@ In gerneral, all Automower models should be supported.
 
 Please refer to the documentation generated from plugin.yaml metadata.
 
-````yaml
+```yaml
 am315x:
     class_name: Husky
     class_path: plugins.husky
