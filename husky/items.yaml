@@ -43,11 +43,13 @@ husky_plugin:
                 visu_acl: r
 
             batterypercent: 
+                name: Battery Level 0..100
                 husky_state: batterypercent 
                 type: num 
                 visu_acl: r
 
-            battery255: 
+            battery255:
+                name: Battery Level 0..255
                 type: num 
                 visu_acl: r
                 eval: int(value * 255 / 100)
@@ -63,6 +65,13 @@ husky_plugin:
                 visu_acl: rw
                 enforce_updates: True
 
+            start_3h:
+                name: Start (Override 3h)
+                husky_control: START_3H
+                type: bool 
+                visu_acl: rw
+                enforce_updates: True
+
             stop:
                 name: Stop 
                 husky_control: STOP
@@ -73,6 +82,13 @@ husky_plugin:
             park:
                 name: Park 
                 husky_control: PARK 
+                type: bool 
+                visu_acl: rw
+                enforce_updates: True
+
+            park:
+                name: Park until next Timer
+                husky_control: PARK_TIMER
                 type: bool 
                 visu_acl: rw
                 enforce_updates: True
